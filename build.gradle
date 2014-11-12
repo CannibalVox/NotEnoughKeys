@@ -70,7 +70,8 @@ publishing {
         }
     }
 }
-
+}
+}
 processResources {
     from(sourceSets.main.resources.srcDirs) {
         include '**/*.lang'
