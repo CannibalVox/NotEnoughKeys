@@ -19,12 +19,6 @@ apply plugin: "curseforge"
 apply plugin: 'forge'
 apply plugin: 'maven-publish'
 
-if (System.getenv("BUILD_NUMBER") != null) {
-    version = "${System.getenv("BUILD_NUMBER")}"
-} else {
-    version = "NIGHTLY"
-}
-
 ext.buildProps = file "build.properties"
 
 buildProps.withReader {
