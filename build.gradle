@@ -33,7 +33,7 @@ buildProps.withReader {
     ext.config = new ConfigSlurper().parse prop
 }
 
-version = "${config.version.minecraft}-${config.version.mod.major}.${config.version.mod.minor}.${config.version.mod.revis}b${$bamboo_build_number}"
+version = "${config.version.minecraft}-${config.version.mod.major}.${config.version.mod.minor}.${config.version.mod.revis}b${$build_number}"
 group = "notenoughkeys"
 archivesBaseName = "NotEnoughKeys"
 
