@@ -21,8 +21,8 @@ apply plugin: 'maven-publish'
 
 ext.buildProps = file "build.properties"
 
-//if ("bamboo.buildNumber}") != null) {
-//    version = "${bamboo.buildNumber}")}"
+//if (${System.getenv()bamboo.buildNumber}) != null) {
+//   version = "${System.getenv()bamboo.buildNumber}}"
 //} else {
 //    version = "NIGHTLY"
 //}
@@ -33,7 +33,7 @@ buildProps.withReader {
     ext.config = new ConfigSlurper().parse prop
 }
 
-version = "1.7.10-${config.version.mod.major}.${config.version.mod.minor}.${config.version.mod.revis}b${bamboo.buildNumber}"
+version = "${config.version.minecraft}-${config.version.mod.major}.${config.version.mod.minor}.${config.version.mod.revis}b${System.getenv()bamboo.buildNumber}"
 group = "notenoughkeys"
 archivesBaseName = "NotEnoughKeys"
 
