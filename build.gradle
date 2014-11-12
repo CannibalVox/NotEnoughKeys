@@ -50,11 +50,6 @@ minecraft {
     mappings = "snapshot_20140925"
 }
 
-task javadocJar(type: Jar, dependsOn: 'javadoc') {
-    from javadoc.destinationDir
-    classifier = 'javadoc'
-}
-
 curse {
     apiKey = System.getenv("Dmod_curse")
     projectId = "224614"
@@ -76,17 +71,18 @@ publishing {
         mavenJava(MavenPublication)
         {
             artifact jar
-            println jar
             artifact deobfJar
+            artifact javadocJar
+        }
+    }
 
     repositories {
         maven {
-            url "file://var/www/maven"
+            url "file://C:/Users/Admin/Desktop/Minecraft/maven"
         }
     }
 }
-}
-}
+
 processResources {
     from(sourceSets.main.resources.srcDirs) {
         include '**/*.lang'
@@ -105,9 +101,10 @@ processResources {
     }
 }
 
-jar {
-    dependsOn javadocJar
-    }
+task javadocJar(type: Jar, dependsOn: 'javadoc') {
+    from javadoc.destinationDir
+    classifier = 'javadoc'
+}
 
 task deobfJar(type: Jar) {
     from sourceSets.main.output
@@ -116,4 +113,5 @@ task deobfJar(type: Jar) {
 
 artifacts {
     archives deobfJar
+    archives javadocJar
 }
