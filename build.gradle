@@ -87,12 +87,6 @@ curse {
     addGameVersion "1.7.10"
     // addGameversion "1.7.0", "1.7.4"
 
-}
-
-artifacts {
-    archives apiZip
-}
-
 publishing {
     publications {
         mavenJava(MavenPublication) {
