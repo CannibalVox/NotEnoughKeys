@@ -95,7 +95,7 @@ publishing {
             artifact jar
             artifact deobfJar
 
-            artifact("output/build.properties") {
+            artifact("build.properties") {
                 classifier "build"
                 extension "properties"
             }
