@@ -86,14 +86,14 @@ curse {
     // allows you to add extra compatible MC versions. The one specified in the minecraft{} block is used by default.
     addGameVersion "1.7.10"
     // addGameversion "1.7.0", "1.7.4"
-    }
+}
 
+   
 publishing {
     publications {
         mavenJava(MavenPublication) {
             artifact jar
             artifact deobfJar
-			artifact apiZip
 
             artifact("output/build.properties") {
                 classifier "build"
