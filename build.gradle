@@ -17,6 +17,7 @@ buildscript {
 
 apply plugin: "curseforge"
 apply plugin: 'forge'
+apply plugin: 'maven-publish'
 
 if (System.getenv("BUILD_NUMBER") != null) {
     version = "${System.getenv("BUILD_NUMBER")}"
@@ -87,6 +88,31 @@ curse {
     // addGameversion "1.7.0", "1.7.4"
 
 }
+
+artifacts {
+    archives apiZip
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+            artifact deobfJar
+			artifact apiZip
+
+            artifact("output/build.properties") {
+                classifier "build"
+                extension "properties"
+            }
+        }
+    }
+    repositories {
+        maven {
+            url "file://var/www/maven"
+        }
+    }
+}
+
 processResources {
     from(sourceSets.main.resources.srcDirs) {
         include '**/*.lang'
