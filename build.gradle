@@ -73,8 +73,10 @@ curse {
    
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        mavenJava(MavenPublication)
+        {
             artifact jar
+            println jar
             artifact deobfJar
 
     repositories {
