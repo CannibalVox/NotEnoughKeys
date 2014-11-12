@@ -42,32 +42,6 @@ minecraft {
     mappings = "snapshot_20140925"
 }
 
-jenkins {
-    job = 'NotEnoughKeys'
-}
-
-import net.minecraftforge.gradle.delayed.*
-import net.minecraftforge.gradle.tasks.dev.ChangelogTask
-
-task createChangelog(type: ChangelogTask) {
-
-    if (("${System.getenv().JOB_NAME}" != null) && project.hasProperty("jenkins_server") && project.hasProperty("jenkins_password")) {
-        def jobName = "${System.getenv().JOB_NAME}"
-        def buildNumber = "${System.getenv().BUILD_NUMBER}"
-
-        setServerRoot(new DelayedString(project, project.jenkins_server))
-        setJobName(new DelayedString(project, jobName.toString()))
-        setAuthName(new DelayedString(project, project.jenkins_user))
-        setAuthPassword(new DelayedString(project, project.jenkins_password))
-        setTargetBuild({ buildNumber.toString() });
-        setOutput(new DelayedFile(project, 'build/libs/' + project.archivesBaseName + '-' + project.version + '-changelog.txt'));
-    }
-
-    onlyIf {
-        return (("${System.getenv().JOB_NAME}" != null) && project.hasProperty("jenkins_server") && project.hasProperty("jenkins_password"))
-    }
-}
-
 task javadocJar(type: Jar, dependsOn: 'javadoc') {
     from javadoc.destinationDir
     classifier = 'javadoc'
@@ -127,7 +101,7 @@ processResources {
 }
 
 jar {
-    dependsOn javadocJar, createChangelog
+    dependsOn javadocJar
     }
 
 task deobfJar(type: Jar) {
