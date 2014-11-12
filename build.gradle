@@ -41,6 +41,8 @@ if (project.hasProperty("bambooBuildNumber"))
     version += project.bambooBuildNumber
 else
     version += "NIGHTLY"
+    
+println "version = "+ version
 
 minecraft {
     version = "${config.version.minecraft}-${config.version.forge}"
