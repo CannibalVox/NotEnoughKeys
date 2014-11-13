@@ -78,7 +78,7 @@ publishing {
 
     repositories {
         maven {
-            url "file:///var/www/maven"
+            url "file:///var/www/html/maven"
         }
     }
 }
