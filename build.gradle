@@ -44,6 +44,8 @@ else
     
 println "version = "+ version
 
+
+
 minecraft {
     version = "${config.version.minecraft}-${config.version.forge}"
     runDir = "run"
@@ -65,6 +67,45 @@ curse {
     // addGameversion "1.7.0", "1.7.4"
 }
 
+/**
+ * Generates a Bamboo XML changelog via the REST API.
+ */
+task("createChangelog").doLast {
+
+    def bambooURL = "http://69.25.207.26:8085/"
+
+    /**
+     * Create a new file
+     */
+    def file = new FileOutputStream("output/changelog.xml")
+    def out = new BufferedOutputStream(file)
+
+    /**
+     * Grab the build first, parse the XML to find the changelog XML URL
+     */
+    def changesXML = new XmlSlurper().parse(teamCityURL + "guestAuth/app/rest/changes?locator=build:(id:" + teamcity["teamcity.build.id"] + ")")
+    def changes = changesXML.change
+
+    /**
+     * Add the XML definition header in the front of the file and remove all other occurrences of the XML header
+     */
+    out << ("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><changes>")
+
+    println("createChangelog: Identified " + changes.size() + " changes to be written into the changelog.")
+
+    for (int i = 0; i < changes.size(); i++) {
+        /**
+         * Write each changelog XML into the URL
+         */
+        def changelogURL = teamCityURL + "rest/api/latest/result/project.bambooBuildNumber?expand=changes.change.files" + changes[i].@id.text()
+        out << new URL(changelogURL).getText().replaceAll("<\\?xml version=\"1\\.0\" encoding=\"UTF-8\" standalone=\"yes\"\\?>", "")
+    }
+
+    out << "</changes>"
+
+    out.close()
+}
+
    
 publishing {
     publications {
@@ -74,9 +115,12 @@ publishing {
             artifact deobfJar
             artifact javadocJar
             artifactId 'NeK'
+            artifact("output/build.properties") {
+                classifier "build"
+                extension "properties"
+            }
         }
     }
-
     repositories {
         maven {
             url "file:///var/www/html/maven"
