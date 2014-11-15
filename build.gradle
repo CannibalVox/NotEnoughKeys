@@ -92,7 +92,7 @@ task("createChangelog").doLast {
     out << ("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><change>")
 
     println("createChangelog: Identified " + changes.size() + " changes to be written into the changelog.")
-    println("Looking in " + changelogURL + "found" + changes.size() ".")
+    println("Looking in " + changelogURL + "found" + changes.size() )
 
     for (int i = 0; i < changes.size(); i++) {
         /**
