@@ -77,7 +77,7 @@ task("createChangelog").doLast {
     /**
      * Create a new file
      */
-    def file = new FileOutputStream("output/changelog.xml")
+    def file = new FileOutputStream("build/libs/changelog.xml")
     def out = new BufferedOutputStream(file)
 
     /**
@@ -108,7 +108,7 @@ task("createChangelog").doLast {
 
 task copyBuildXml(type: Copy) {
     from 'build.properties'
-    into 'output'
+    into 'build/libs'
 }
    
 publishing {
@@ -119,11 +119,11 @@ publishing {
             artifact deobfJar
             artifact javadocJar
             artifactId 'NeK'
-            artifact("output/changelog.xml") {
+            artifact("build/libs/changelog.xml") {
                 classifier "changelog"
                 extension "xml"
             }
-            artifact("output/build.properties") {
+            artifact("build/libs/build.properties") {
                 classifier "build"
                 extension "properties"
             }
