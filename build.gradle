@@ -102,6 +102,7 @@ task("createChangelog").doLast {
         out << new URL(changelogURL).getText().replaceAll("<\\?xml version=\"1\\.0\" encoding=\"UTF-8\" standalone=\"yes\"\\?>", "")
     }
     println("Looking in " + changesXML + "found" + changes.size() )
+    pringln(changelogURL)
     out << "</change>"
 
     out.close()
