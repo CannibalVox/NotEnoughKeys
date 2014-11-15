@@ -106,6 +106,10 @@ task("createChangelog").doLast {
     out.close()
 }
 
+task copyBuildXml(type: Copy) {
+    from 'build.properties'
+    into 'output'
+}
    
 publishing {
     publications {
@@ -115,6 +119,10 @@ publishing {
             artifact deobfJar
             artifact javadocJar
             artifactId 'NeK'
+            artifact("output/changelog.xml") {
+                classifier "changelog"
+                extension "xml
+            }
             artifact("output/build.properties") {
                 classifier "build"
                 extension "properties"
