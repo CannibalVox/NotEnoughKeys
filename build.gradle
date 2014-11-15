@@ -159,6 +159,10 @@ task javadocJar(type: Jar, dependsOn: 'javadoc') {
     classifier = 'javadoc'
 }
 
+jar {
+    dependsOn copyBuildXml, createChangelog
+    }
+
 task deobfJar(type: Jar) {
     from sourceSets.main.output
     classifier = 'deobf'
