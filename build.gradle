@@ -83,7 +83,7 @@ task("createChangelog").doLast {
     /**
      * Grab the build first, parse the XML to find the changelog XML URL
      */
-    def changesXML = new XmlSlurper().parse(bambooURL + "rest/api/latest/result/" += project.bambooBuildNumber += ?expand=changes.change.files")
+    def changesXML = new XmlSlurper().parse(bambooURL + "rest/api/latest/result/" + project.bambooBuildNumber + ?expand=changes.change.files")
     def changes = changesXML.change
 
     /**
