@@ -89,7 +89,7 @@ task("createChangelog").doLast {
     /**
      * Add the XML definition header in the front of the file and remove all other occurrences of the XML header
      */
-    out << ("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><changes>")
+    out << ("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><change>")
 
     println("createChangelog: Identified " + changes.size() + " changes to be written into the changelog.")
 
@@ -101,7 +101,7 @@ task("createChangelog").doLast {
         out << new URL(changelogURL).getText().replaceAll("<\\?xml version=\"1\\.0\" encoding=\"UTF-8\" standalone=\"yes\"\\?>", "")
     }
 
-    out << "</changes>"
+    out << "</change>"
 
     out.close()
 }
