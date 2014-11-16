@@ -53,7 +53,7 @@ minecraft {
 }
 
 curse {
-    apiKey = project.Dmod_curse
+    apiKey = project.dmod_curse
     projectId = "224614"
     // my project url is http://minecraft.curseforge.com/mc-mods/59652-seretroomsmod/
     changelog = "check out https://github.com/mod-warriors/NotEnoughKeys/commits/master"
