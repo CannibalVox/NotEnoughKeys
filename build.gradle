@@ -112,7 +112,7 @@ task copyBuildXml(type: Copy) {
     from 'build.properties'
     into 'build/libs'
 }
-   
+
 publishing {
     publications {
         mavenJava(MavenPublication)
@@ -131,6 +131,7 @@ publishing {
             }
         }
     }
+
     repositories {
         maven {
             url "file:///var/www/html/maven"
