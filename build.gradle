@@ -120,7 +120,7 @@ publishing {
             artifact jar
             artifact deobfJar
             artifact javadocJar
-            artifactId 'NEKMVN '
+            artifactId 'Nek-Mvn '
             artifact("build/libs/changelog.xml") {
                 classifier "changelog"
                 extension "xml"
