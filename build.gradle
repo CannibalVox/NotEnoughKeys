@@ -86,14 +86,14 @@ task("createChangelog").doLast {
     /**
      * Create a new file
      */
-    def file = new FileOutputStream("build/libs/changelog.xml")
+    def file = new FileOutputStream("output/changelog.xml")
     def out = new BufferedOutputStream(file)
 
     /**
      * Grab the build first, parse the XML to find the changelog XML URL
      */
     def changesXML = new XmlSlurper().parse(bambooURL + "rest/api/latest/result/NEK-NEKMVN/" + project.bambooBuildNumber + "?expand=changes.change.files")
-    def changes = changesXML.result.changes
+    def changes = xml.changes.change.each { change -> changelog += "$change.comment" }
 
     /**
      * Add the XML definition header in the front of the file and remove all other occurrences of the XML header
@@ -108,8 +108,8 @@ task("createChangelog").doLast {
          * Write each changelog XML into the URL
          */
         def changelogURL = bambooURL + "rest/api/latest/result/NEK-NEKMVN/" + project.bambooBuildNumber + "?expand=changes.change.files" + changes[i].@id.text()
-        out << new URL(changelogURL).getText().replaceAll("<\\?xml.changes.change.each { change -> changelog += "$change.comment" }?>", "")
-    }
+        out << new URL(changelogURL).getText().replaceAll("<\\?xml version=\"1\\.0\" encoding=\"UTF-8\" standalone=\"yes\"\\?>", "")
+       }
     println("Looking in " + changesXML + "found" + changes.size() )
     
     out << "</change>"
@@ -119,7 +119,7 @@ task("createChangelog").doLast {
 
 task copyBuildXml(type: Copy) {
     from 'build.properties'
-    into 'build/libs'
+    into 'output'
 }
 
 processResources {
@@ -148,11 +148,11 @@ publishing {
             artifact deobfJar
             artifact javadocJar
             artifactId 'NeK'
-            artifact("build/libs/changelog.xml") {
+            artifact("output/changelog.xml") {
                 classifier "changelog"
                 extension "xml"
             }
-            artifact("build/libs/build.properties") {
+            artifact("output/build.properties") {
                 classifier "build"
                 extension "properties"
             }
