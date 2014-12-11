@@ -98,7 +98,7 @@ task("createChangelog").doLast {
     /**
      * Add the XML definition header in the front of the file and remove all other occurrences of the XML header
      */
-    out << ("xml.changes.change.each { change -> changelog += "$change.comment" }")
+    out << ("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><change>")
 
     println("createChangelog: Identified " + changes.size() + " changes to be written into the changelog.")
 
@@ -108,7 +108,7 @@ task("createChangelog").doLast {
          * Write each changelog XML into the URL
          */
         def changelogURL = bambooURL + "rest/api/latest/result/NEK-NEKMVN/" + project.bambooBuildNumber + "?expand=changes.change.files" + changes[i].@id.text()
-        out << new URL(changelogURL).getText().replaceAll("<\\?xml version=\"1\\.0\" encoding=\"UTF-8\" standalone=\"yes\"\\?>", "")
+        out << new URL(changelogURL).getText().replaceAll("<\\?xml.changes.change.each { change -> changelog += "$change.comment" }?>", "")
     }
     println("Looking in " + changesXML + "found" + changes.size() )
     
