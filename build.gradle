@@ -117,7 +117,7 @@ task("createChangelog").doLast {
 
     out.close()
 }
-printlm("Looking in " changesXML " and " changelogURL"")
+
 task copyBuildXml(type: Copy) {
     from 'build.properties'
     into 'output'
