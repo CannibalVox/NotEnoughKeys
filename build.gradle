@@ -110,14 +110,14 @@ task("createChangelog").doLast {
         def changelogURL = bambooURL + "rest/api/latest/result/NEK-NEKMVN/" + project.bambooBuildNumber + "?expand=changes.change.files" + changes[i].@id.text()
         out << new URL(changelogURL).getText().replaceAll("<\\?xml version=\"1\\.0\" encoding=\"UTF-8\" standalone=\"yes\"\\?>", "")
     }
-    printlm("Looking in " changesXML " and " changelogURL"")
+
     println("Looking in " + changesXML + "found " + " " + changes.size() )
     
     out << "</change>"
 
     out.close()
 }
-
+printlm("Looking in " changesXML " and " changelogURL"")
 task copyBuildXml(type: Copy) {
     from 'build.properties'
     into 'output'
