@@ -94,7 +94,7 @@ task("createChangelog").doLast {
      */
         def changesXML = new XmlSlurper().parse(bambooURL + "rest/api/latest/result/NEK-NEKMVN/" + project.bambooBuildNumber + "?expand=changes.change.files")
     def changes = changesXML.result.changes
-        println("Looking in " changesXML " and " changelogURL"")
+     
     /**
      * Add the XML definition header in the front of the file and remove all other occurrences of the XML header
      */
