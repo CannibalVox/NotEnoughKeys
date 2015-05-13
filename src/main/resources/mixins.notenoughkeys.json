@@ -1,0 +1,9 @@
+{
+  "required":true,
+  "minVersion":"0.3",
+  "package":"modwarriors.notenoughkeys.mixin",
+  "mixins": [
+    "KeyBindingMixin"
+  ],
+  "refmap":"notenoughkeys.mixin.refmap.json"
+}

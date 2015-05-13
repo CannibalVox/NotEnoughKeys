@@ -1,18 +1,25 @@
 package modwarriors.notenoughkeys;
 
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.Mod;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+import cpw.mods.fml.client.registry.ClientRegistry;
+import cpw.mods.fml.common.*;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import modwarriors.notenoughkeys.api.Api;
+import modwarriors.notenoughkeys.coremod.NotEnoughKeysResourcePack;
 import modwarriors.notenoughkeys.keys.KeyEvents;
 import modwarriors.notenoughkeys.keys.KeyHelper;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.input.Keyboard;
 
 import java.io.File;
 
@@ -21,8 +28,30 @@ import java.io.File;
  *
  * @author TheTemportalist
  */
-@Mod(modid = NotEnoughKeys.modid, name = NotEnoughKeys.name, version = NotEnoughKeys.version)
-public class NotEnoughKeys {
+public class NotEnoughKeys extends DummyModContainer {
+
+	public NotEnoughKeys() {
+		super(new ModMetadata());
+		ModMetadata metadata = getMetadata();
+		metadata.modId = NotEnoughKeys.modid;
+		metadata.version = NotEnoughKeys.version;
+		metadata.name = NotEnoughKeys.name;
+		metadata.description = "Upddated Version of Okushama's NotEnoughKeys. Sorts the Controls gui system and adds optional modifiers (SHIFT, CTRL, ALT) to keys.";
+		metadata.url = "http://www.minecraftforum.net/forums/mapping-and-modding/minecraft-mods/2277165-notenoughkeys";
+		metadata.authorList.add("dmodoomsirius");
+		metadata.authorList.add("okushama");
+		metadata.authorList.add("Parker8283");
+		metadata.authorList.add("TheTemportalist");
+	}
+
+	@Override
+	public boolean registerBus(EventBus bus, LoadController controller) {
+		bus.register(this);
+		return true;
+	}
+
+	@Override
+	public Class<?> getCustomResourcePackClass() { return NotEnoughKeysResourcePack.class; }
 
 	public static final String modid = "notenoughkeys", name = "Not Enough Keys", version = "@MOD_VERSION@";
 
@@ -30,7 +59,7 @@ public class NotEnoughKeys {
 
 	private static Configuration config;
 
-	@EventHandler
+	@Subscribe
 	@SideOnly(Side.CLIENT)
 	public static void preInit(FMLPreInitializationEvent e) {
 		logger = e.getModLog();
@@ -51,13 +80,7 @@ public class NotEnoughKeys {
 		NotEnoughKeys.saveConfig();
 	}
 
-	@EventHandler
-	@SideOnly(Side.CLIENT)
-	public static void init(FMLInitializationEvent e) {
-
-	}
-
-	@EventHandler
+	@Subscribe
 	@SideOnly(Side.CLIENT)
 	public static void postInit(FMLPostInitializationEvent e) {
 		/*

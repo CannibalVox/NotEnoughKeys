@@ -15,9 +15,14 @@ buildscript {
     }
 }
 
-apply plugin: "curseforge"
+defaultTasks 'build'
 apply plugin: 'forge'
 apply plugin: 'maven-publish'
+
+ext.mixinSrg = new File(project.buildDir, "tmp/mixins/mixins.notenoughkeys.srg")
+ext.mixinRefMap = new File(project.buildDir, "tmp/mixins/notenoughkeys.mixin.refmap.json")
+
+reobf.addExtraSrgFile project.mixinSrg
 
 task makePretty(type: Delete) {
   delete 'output'
@@ -27,14 +32,22 @@ clean{
    dependsOn makePretty
 }
 
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        name = 'sonatype-nexus'
+        url = 'https://oss.sonatype.org/content/groups/public/'
+    }
+
+    // Add Sponge repo for custom checkstyle implementation to fix some wrong warnings
+    maven {
+        name = "sponge-public"
+        url = "http://repo.spongepowered.org/maven/"
+    }
+}
 
 ext.buildProps = file "build.properties"
-
-//if (${System.getenv()bamboo.buildNumber}) != null) {
-//   version = "${System.getenv()bamboo.buildNumber}}"
-//} else {
-//    version = "NIGHTLY"
-//}
 
 buildProps.withReader {
     def prop = new Properties()
@@ -46,81 +59,14 @@ version = "${config.version.minecraft}-${config.version.mod.major}.${config.vers
 group = "notenoughkeys"
 archivesBaseName = "NotEnoughKeys"
 
-if (project.hasProperty("bambooBuildNumber"))
-    version += project.bambooBuildNumber
-else
-    version += "NIGHTLY"
-    
-if (project.getProperty("bambooshortPlanName") == "NEK-Dev")
-    version += "dev"
-
-println "version = "+ version
-
 minecraft {
     version = "${config.version.minecraft}-${config.version.forge}"
     runDir = "run"
     mappings = "snapshot_20140925"
 }
 
-curse {
-    apiKey = project.dmodcurse
-    projectId = "224614"
-    // my project url is http://minecraft.curseforge.com/mc-mods/59652-seretroomsmod/
-    changelog = "check out https://github.com/mod-warriors/NotEnoughKeys/commits/master"
-    releaseType = "beta"
-
-    // the default obfuscated jar is uploaded by default
-    // artifact = project.file("some/jar/to/upload.jar")
-
-    // allows you to add extra compatible MC versions. The one specified in the minecraft{} block is used by default.
-    addGameVersion "1.7.10"
-    // addGameversion "1.7.0", "1.7.4"
-}
-
-/**
- * Generates a Bamboo XML changelog via the REST API.
- */
-task("createChangelog").doLast {
-
-    def bambooURL = "http://69.25.207.26:8085/"
-
-    /**
-     * Create a new file
-     */
-    def file = new FileOutputStream("build/libs/changelog.xml")
-    def out = new BufferedOutputStream(file)
-
-    /**
-     * Grab the build first, parse the XML to find the changelog XML URL
-     */
-    def changesXML = new XmlSlurper().parse(bambooURL + "rest/api/latest/result/NEK-NEK/" + project.bambooBuildNumber + "?expand=changes.change.files")
-    def changes = changesXML.result.changes
-
-    /**
-     * Add the XML definition header in the front of the file and remove all other occurrences of the XML header
-     */
-    out << ("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><change>")
-
-    println("createChangelog: Identified " + changes.size() + " changes to be written into the changelog.")
-
-
-    for (int i = 0; i < changes.size(); i++) {
-        /**
-         * Write each changelog XML into the URL
-         */
-        def changelogURL = bambooURL + "rest/api/latest/result/NEK-NEK/" + project.bambooBuildNumber + "?expand=changes.change.files" + changes[i].@id.text()
-        out << new URL(changelogURL).getText().replaceAll("<\\?xml version=\"1\\.0\" encoding=\"UTF-8\" standalone=\"yes\"\\?>", "")
-    }
-    println("Looking in " + changesXML + "found" + changes.size() )
-    
-    out << "</change>"
-
-    out.close()
-}
-
-task copyBuildXml(type: Copy) {
-    from 'build.properties'
-    into 'build/libs'
+dependencies {
+    compile "org.spongepowered:mixin:0.3.1-SNAPSHOT"
 }
 
 processResources {
@@ -141,52 +87,54 @@ processResources {
 	}
 }
 
-publishing {
-    publications {
-        mavenJava(MavenPublication)
-        {
-            artifact jar
-            artifact deobfJar
-            artifact javadocJar
-            artifactId 'NeK'
-
-            artifact("build/libs/build.properties") {
-                classifier "build"
-                extension "properties"
-            }
-        }
-    }
-
-    repositories {
-        maven {
-            url "file:///var/www/html/maven"
-        }
-    }
+def defaultEncoding = 'UTF-8'
+compileJava {
+    options.compilerArgs += [
+            '-Xlint:all',
+            '-Xlint:-path',
+            '-Xlint:-processing',
+            "-AoutSrgFile=${project.mixinSrg.getCanonicalPath()}",
+            "-AoutRefMapFile=${project.mixinRefMap.getCanonicalPath()}"
+    ]
+    options.deprecation = true
+    options.encoding = defaultEncoding
 }
 
-task javadocJar(type: Jar, dependsOn: 'javadoc') {
-   
-    from javadoc.destinationDir
-    if (project.getProperty("bambooshortPlanName") == "NEK-Dev") classifier = "javadoc-dev" 
-    else classifier = "javadoc" 
-    destinationDir = file 'output'
+afterEvaluate {
+    tasks.compileJava.options.compilerArgs += "-AreobfSrgFile=${tasks.reobf.srg}"
 }
 
-jar { 
-    if (project.getProperty("bambooshortPlanName") == "NEK-Dev") classifier = "dev"
-    
-    dependsOn copyBuildXml
-    destinationDir = file 'output'
-    }
+task copySrgs(type: Copy, dependsOn: "genSrgs") {
+    from plugins.getPlugin("forge").delayedFile("{SRG_DIR}")
+
+    include '**/*.srg'
+    into 'build/srgs'
+}
+
+setupDecompWorkspace.dependsOn copySrgs
+setupDevWorkspace.dependsOn copySrgs
 
 task deobfJar(type: Jar) {
     from sourceSets.main.output
-    if (project.getProperty("bambooshortPlanName") == "NEK-Dev") classifier = "deobf-dev" 
-    else classifier = "deobf" 
+    classifier = "deobf" 
     destinationDir = file 'output'
 }
 
 artifacts {
     archives deobfJar
-    archives javadocJar
 }
+
+def manifestEntries = [
+        "Built-By": System.properties['user.name'],
+        "Created-By": System.properties['java.vm.version'] + " (" + System.properties['java.vm.vendor'] + ")",
+        "FMLCorePlugin": "modwarriors.notenoughkeys.coremod.NotEnoughKeysCoremod",
+        "FMLCorePluginContainsFMLMod": 'true'
+]
+
+jar {
+    from project.mixinRefMap
+    manifest.mainAttributes(manifestEntries)
+    destinationDir = file 'output'
+}
+
+

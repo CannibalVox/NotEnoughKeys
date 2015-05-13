@@ -1,6 +1,7 @@
 package modwarriors.notenoughkeys.keys;
 
 import com.google.gson.*;
+import modwarriors.notenoughkeys.Helper;
 import modwarriors.notenoughkeys.NotEnoughKeys;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
@@ -59,6 +60,11 @@ public class KeyHelper {
 			if (keyBinding != null && !KeyHelper.keybindings
 					.containsKey(keyBinding.getKeyDescription())) {
 				KeyHelper.keybindings.put(keyBinding.getKeyDescription(), keyBinding);
+
+				if (!KeyHelper.bindingsByKey.containsKey(keyBinding.getKeyCode())) {
+					KeyHelper.bindingsByKey.put(keyBinding.getKeyCode(), new ArrayList<KeyBinding>());
+				}
+				KeyHelper.bindingsByKey.get(keyBinding.getKeyCode()).add(keyBinding);
 			}
 		}
 		KeyHelper.updateConflictCategory();
@@ -79,6 +85,8 @@ public class KeyHelper {
 	 */
 	public static HashMap<String, boolean[]> alternates = new HashMap<String, boolean[]>();
 
+	public static HashMap<Integer, ArrayList<KeyBinding>> bindingsByKey = new HashMap<Integer, ArrayList<KeyBinding>>();
+
 	// ~~~ Conflicting
 
 	/**
@@ -92,6 +100,32 @@ public class KeyHelper {
 	public static void updateConflictCategory() {
 		KeyHelper.conflictingKeys.clear();
 		KeyHelper.conflictingKeys.addAll(KeyHelper.getConflictingKeybinds());
+	}
+
+	public static List<KeyBinding> getActiveKeybinds(int keyCode) {
+		ArrayList<KeyBinding> activeBindings = new ArrayList<KeyBinding>(3);
+		boolean activeBindingsAreAlternate = false;
+		if (!KeyHelper.bindingsByKey.containsKey(keyCode))
+			return activeBindings;
+
+		for (KeyBinding binding : KeyHelper.bindingsByKey.get(keyCode)) {
+			if (!KeyHelper.alternates.containsKey(binding.getKeyDescription())) {
+				if (Helper.isKeyPressed_KeyBoard(binding) && !activeBindingsAreAlternate)
+					activeBindings.add(binding);
+			} else {
+				boolean[] modifiers = KeyHelper.alternates.get(binding.getKeyDescription());
+				boolean isAlternate = modifiers[0] || modifiers[1] || modifiers[2];
+				if (Helper.isSpecialKeyBindingPressed(binding, modifiers)) {
+					if (!activeBindingsAreAlternate && isAlternate) {
+						activeBindings.clear();
+						activeBindingsAreAlternate = true;
+					}
+					activeBindings.add(binding);
+				}
+			}
+		}
+
+		return activeBindings;
 	}
 
 	/**
